@@ -37,8 +37,11 @@ async function run() {
 //-------------------------Databases & all Collection here-----------------------------
     const dataBase = client.db("Placio") ;
     const placioProperties = dataBase.collection("properties") ;
+    const userCollection = dataBase.collection("users") ;
 
     //--------------------All api here ---------------------------------------
+
+    //*************************** APIS RELATED TO PROPERTY *******************************************/
 
     //-----------------------Simple Post api to Add property------------------------
     app.post('/property', async(req,res)=>{
@@ -54,6 +57,26 @@ async function run() {
         res.send(result) ;
     })
 
+    //*************************** APIS RELATED TO USERS *******************************************/
+    app.post('/users' , async(req,res) => {
+      const newUser = req.body ; 
+      const email = req.body.email ;
+
+      const query = {email : email} ;
+      const existingEmail =await userCollection.findOne(query) ;
+      if(existingEmail){
+        res.send("User Already Exist")
+      }else{
+        const result = await userCollection.insertOne(newUser) ;
+        res.send(result) ;
+      }
+    })
+
+    app.get('/users' , async(req,res)=>{
+      const cursor =await userCollection.find() ;
+      const result = await cursor.toArray() ;
+      res.send(result) ;
+    })
 
     //----------------------- Reminder  -> Comment this Out when deploying to vercel
     await client.db("admin").command({ ping: 1 });
