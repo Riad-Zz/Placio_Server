@@ -38,6 +38,7 @@ async function run() {
     const dataBase = client.db("Placio") ;
     const placioProperties = dataBase.collection("properties") ;
     const userCollection = dataBase.collection("users") ;
+    const ratingCollection = dataBase.collection('rating')
 
     //--------------------All api here ---------------------------------------
 
@@ -93,6 +94,24 @@ async function run() {
     app.get('/users' , async(req,res)=>{
       const cursor =await userCollection.find() ;
       const result = await cursor.toArray() ;
+      res.send(result) ;
+    })
+
+    //*************************** APIS RELATED TO Rating *******************************************/
+    app.get('/rating' , async(req,res)=>{
+      const email = req.query.Reviewer;
+      const query = {} 
+      if(email){
+        query.email = email
+      }
+      const cursor = await ratingCollection.find(query)
+      const result = await cursor.toArray() ;
+      res.send(result)
+    })
+
+    app.post('/rating',async(req,res)=>{
+      const newRating = req.body ;
+      const result = await ratingCollection.insertOne(newRating) ;
       res.send(result) ;
     })
 
