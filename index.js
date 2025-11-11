@@ -57,6 +57,15 @@ async function run() {
         res.send(result) ;
     })
 
+    app.get('/recentproperty' , async(req,res)=>{
+      const limitt = 6 ;
+      const query = {} ;
+      const sortType = {postedOn : -1} ;
+      const cursor = await placioProperties.find(query).sort(sortType).limit(limitt)
+      const result = await cursor.toArray() ;
+      res.send(result) ;
+    })
+
     //*************************** APIS RELATED TO USERS *******************************************/
     app.post('/users' , async(req,res) => {
       const newUser = req.body ; 
