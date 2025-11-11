@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 //----------------Initial Port and Connections-------------------------
 const app = express();
@@ -57,6 +57,13 @@ async function run() {
         const cursor =await placioProperties.find(query).sort(sortType) ;
         const result =await cursor.toArray() ;
         res.send(result) ;
+    })
+
+    app.get('/property/:id' , async(req,res)=>{
+      const userID = req.params.id ;
+      const query = {_id : new ObjectId(userID)} ; 
+      const result =await placioProperties.findOne(query)
+      res.send(result) ;
     })
 
     app.get('/recentproperty' , async(req,res)=>{
