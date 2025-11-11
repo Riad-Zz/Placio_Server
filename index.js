@@ -53,7 +53,11 @@ async function run() {
 
     //----------------------Simple Api to get Property ------------------------
     app.get('/property' , async(req,res)=>{
+        const email = req.query.sellerEmail ;
         const query = {} ;
+        if(email){
+          query.sellerEmail = email
+        }
         const sortType = {price : 1}
         const cursor =await placioProperties.find(query).sort(sortType) ;
         const result =await cursor.toArray() ;
@@ -102,7 +106,7 @@ async function run() {
       const email = req.query.Reviewer;
       const query = {} 
       if(email){
-        query.email = email
+        query.Reviewer = email
       }
       const cursor = await ratingCollection.find(query)
       const result = await cursor.toArray() ;
