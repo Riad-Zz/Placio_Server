@@ -52,7 +52,9 @@ async function run() {
 
     //----------------------Simple Api to get Property ------------------------
     app.get('/property' , async(req,res)=>{
-        const cursor =await placioProperties.find() ;
+        const query = {} ;
+        const sortType = {price : 1}
+        const cursor =await placioProperties.find(query).sort(sortType) ;
         const result =await cursor.toArray() ;
         res.send(result) ;
     })
