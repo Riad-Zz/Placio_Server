@@ -1,2 +1,4 @@
 node_modules
 .env
+.vercel
+placio_Admin_sdk.json
