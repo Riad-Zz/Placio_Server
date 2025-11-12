@@ -71,6 +71,13 @@ async function run() {
       res.send(result) ;
     })
 
+    app.delete('/property/:id' , async(req,res)=>{
+      const properyID = req.params.id ;
+      const query = {_id : new ObjectId(properyID)} ;
+      const result = await placioProperties.deleteOne(query) ;
+      res.send(result) ;
+    })
+
     app.get('/recentproperty' , async(req,res)=>{
       const limitt = 6 ;
       const query = {} ;
