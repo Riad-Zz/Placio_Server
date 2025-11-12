@@ -4,12 +4,13 @@ const admin = require("firebase-admin");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
-const decoded = Buffer.from(process.env.FIREBASE_KEY, "base64").toString("utf8");
+const decoded = Buffer.from(process.env.FIREBASE_KEY, "base64").toString(
+  "utf8"
+);
 
 // console.log(process.env.FIREBASE_KEY)
 
 const serviceAccount = JSON.parse(decoded);
-
 
 // const serviceAccount = require("./placio_Admin_sdk.json");
 
@@ -88,7 +89,16 @@ async function run() {
     });
 
     //----------------------Simple Api to get Property ------------------------
-    app.get("/property", async (req, res) => {
+
+    app.get('/allproperty',async(req,res)=>{
+      const sortType ={price:1} ;
+      const cursor =await placioProperties.find().sort(sortType) ;
+      const result =await cursor.toArray() ;
+      res.send(result) ;
+    })
+
+    //------------------------Firebase Token Varify------------------------------    
+    app.get("/property",fireBaseTokenVarify ,async (req, res) => {
       const email = req.query.sellerEmail;
       const token = req.headers;
       const tokenEmail = req.token_email;
@@ -108,13 +118,15 @@ async function run() {
       res.send(result);
     });
 
+    //--------------------------Get A Property by id---------------------------------
     app.get("/property/:id", async (req, res) => {
       const userID = req.params.id;
       const query = { _id: new ObjectId(userID) };
       const result = await placioProperties.findOne(query);
       res.send(result);
     });
-
+    
+    //----------------------------Delete a Property by id--------------------------------
     app.delete("/property/:id", async (req, res) => {
       const properyID = req.params.id;
       const query = { _id: new ObjectId(properyID) };
@@ -122,6 +134,7 @@ async function run() {
       res.send(result);
     });
 
+    //------------------------Update a Property----------------------------------    
     app.patch("/property/:id", async (req, res) => {
       const propertyID = req.params.id;
       const UpdatedProperty = req.body;
@@ -134,6 +147,7 @@ async function run() {
       res.send(result);
     });
 
+    //-------------------------Recent Product API-----------------------
     app.get("/recentproperty", async (req, res) => {
       const limitt = 6;
       const query = {};
@@ -161,14 +175,26 @@ async function run() {
       }
     });
 
-    app.get("/users", async (req, res) => {
-      const cursor = await userCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
+    //----------------------User Access Limited----------------------------
+    app.get("/users",fireBaseTokenVarify ,async (req, res) => {
+      const tokenEmail = req.token_email; 
+
+      if (tokenEmail !== "kazuha3242@gmail.com") {
+        return res.status(403).send({ message: "Forbidden: Access denied" });
+      }
+
+      try {
+        const cursor = await userCollection.find();
+        const users = await cursor.toArray();
+        res.send(users);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: "Server error" });
+      }
     });
 
     //*************************** APIS RELATED TO Rating *******************************************/
-    app.get("/rating", async (req, res) => {
+    app.get("/rating",fireBaseTokenVarify ,async (req, res) => {
       const email = req.query.Reviewer;
       const token = req.headers;
       const tokenEmail = req.token_email;
@@ -187,6 +213,7 @@ async function run() {
       res.send(result);
     });
 
+    //------------------Api to post new Rating-----------------------
     app.post("/rating", async (req, res) => {
       const newRating = req.body;
       const result = await ratingCollection.insertOne(newRating);
